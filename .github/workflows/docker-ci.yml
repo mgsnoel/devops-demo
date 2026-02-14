@@ -1,0 +1,25 @@
+name: Docker CI
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Build Docker image
+        run: docker build -t devops-demo:ci ./app
+
+      - name: Smoke test container
+        run: |
+          docker run -d --name devops-demo-ci -p 5050:5000 devops-demo:ci
+          sleep 2
+          curl -f http://127.0.0.1:5050/
+          docker logs devops-demo-ci
+          docker rm -f devops-demo-ci
